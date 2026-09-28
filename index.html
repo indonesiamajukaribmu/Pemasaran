@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TITIK.COM — Aplikasi Penerbitan Domain Prabayar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root{
+    --paper:#F5F1E8; --paper2:#FCFAF4; --card:#FFFDF8;
+    --ink:#17140E; --ink60:rgba(23,20,14,.62); --ink30:rgba(23,20,14,.30); --line:rgba(23,20,14,.16);
+    --acc:#D8491B; --ok:#1E6E45; --okbg:rgba(30,110,69,.09); --accbg:rgba(216,73,27,.07);
+    --mono:'IBM Plex Mono',ui-monospace,monospace; --serif:'Fraunces',serif; --sans:'Instrument Sans',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:104px}
+  ::selection{background:var(--acc);color:var(--paper)}
+  button{font-family:inherit;cursor:pointer;color:inherit}
+  input,textarea{font-family:inherit;color:inherit}
+  .wrap{max-width:980px;margin:0 auto;padding:0 20px}
+  .hidden{display:none!important}
+  :focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+  i[data-lucide]{width:16px;height:16px;flex:none}
+
+  /* ---------- app bar ---------- */
+  .top{position:sticky;top:0;z-index:50;background:var(--paper);border-bottom:1px solid var(--line)}
+  .top-in{display:flex;align-items:center;gap:14px;padding:12px 20px;justify-content:space-between}
+  .brand{font-family:var(--mono);font-weight:600;font-size:1.1rem;letter-spacing:-.02em}
+  .brand .acc{color:var(--acc)}
+  .brand small{display:block;font-weight:400;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink60);margin-top:2px}
+  .wallet{display:flex;align-items:center;gap:10px}
+  .wallet-chip{font-family:var(--mono);font-size:.76rem;text-align:right;line-height:1.3}
+  .wallet-chip span{display:block;font-size:.56rem;letter-spacing:.12em;color:var(--ink60)}
+  .wallet-chip strong{font-size:.92rem}
+
+  /* ---------- tombol ---------- */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid var(--ink);background:transparent;padding:9px 16px;font-weight:600;font-size:.85rem;border-radius:2px;transition:background .15s,color .15s,transform .1s}
+  .btn:hover{background:var(--ink);color:var(--paper)}
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn:disabled:hover{background:transparent;color:inherit}
+  .btn-ink{background:var(--ink);color:var(--paper)}
+  .btn-ink:hover{background:#000}
+  .btn-sm{padding:6px 11px;font-size:.78rem}
+  .btn-lg{padding:13px 18px;font-size:.92rem;width:100%}
+  .icon-btn{border:1px solid var(--line);background:var(--card);padding:6px;border-radius:2px;display:inline-flex;transition:background .15s,color .15s}
+  .icon-btn:hover{background:var(--ink);color:var(--paper)}
+
+  /* ---------- layar aplikasi ---------- */
+  .screen{display:none}
+  .screen.on{display:block;animation:scrIn .3s cubic-bezier(.2,.9,.3,1)}
+  @keyframes scrIn{from{opacity:0;transform:translateY(12px)}}
+  .stack{display:flex;flex-direction:column;gap:34px}
+  .sec-head{display:flex;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding:26px 0 12px;margin-bottom:14px}
+  .sec-head:first-child{padding-top:22px}
+  .step-no{font-family:var(--mono);font-size:.72rem;font-weight:600;color:var(--acc);letter-spacing:.06em}
+  .sec-head h2{font-family:var(--serif);font-weight:600;font-size:1.35rem;letter-spacing:-.01em}
+  .sec-head span{margin-left:auto;font-family:var(--mono);font-size:.62rem;color:var(--ink60);text-align:right}
+
+  /* ---------- beranda ---------- */
+  .hero{padding:40px 0 8px}
+  .hero h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.9rem,4.6vw,3rem);line-height:1.06;letter-spacing:-.015em;max-width:17ch}
+  .hero .dot{font-family:var(--mono);font-weight:600;font-size:.62em;background:var(--acc);color:var(--paper);padding:.06em .28em .1em;display:inline-block;transform:rotate(-1.6deg);vertical-align:.14em}
+  .hero p{max-width:56ch;margin-top:14px;color:var(--ink60);font-size:.95rem}
+  .hero-samples{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;align-items:center}
+  .hero-samples>span{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink60);margin-right:4px}
+  .chip{font-family:var(--mono);font-size:.7rem;border:1px solid var(--line);background:var(--card);padding:6px 10px;border-radius:2px;transition:background .15s,color .15s,border-color .15s;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .chip:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0 6px}
+  .stat{border:1px solid var(--line);background:var(--paper2);padding:14px 16px;text-align:left;display:flex;flex-direction:column;gap:4px;transition:border-color .15s}
+  .stat:hover{border-color:var(--ink)}
+  .stat b{font-family:var(--serif);font-weight:700;font-size:1.45rem;line-height:1.1;word-break:break-all}
+  .stat span{font-family:var(--mono);font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink60)}
+
+  .block{border:1px solid var(--line);background:var(--paper2)}
+  .block-head{display:flex;align-items:baseline;gap:12px;padding:14px 20px;border-bottom:1px solid var(--line)}
+  .block-head h2{font-family:var(--serif);font-weight:600;font-size:1.15rem;letter-spacing:-.01em}
+  .block-head p{margin-left:auto;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink60)}
+  .block-body{padding:20px}
+
+  /* ---------- 01 bedah alamat ---------- */
+  .scan-row{display:flex;gap:10px}
+  #urlInput{flex:1;min-width:0;font-family:var(--mono);font-size:.92rem;padding:12px 14px;border:1.5px solid var(--ink);background:var(--card);border-radius:2px}
+  #urlInput::placeholder{color:var(--ink30)}
+  #urlInput:focus{outline:none;border-color:var(--acc)}
+  #scanErr{display:flex;gap:8px;align-items:center;margin-top:12px;color:var(--acc);font-size:.82rem}
+  .anat{margin-top:22px;font-family:var(--mono);font-size:clamp(.8rem,2.2vw,1.15rem);font-weight:500;word-break:break-all;line-height:1}
+  .seg{display:inline-flex;flex-direction:column;vertical-align:top;margin-right:2px}
+  .seg-t{padding:4px 6px;border-bottom:2.5px solid var(--ink30);color:var(--ink60)}
+  .seg-owner .seg-t{border-color:var(--acc);color:var(--ink);background:var(--accbg)}
+  .seg-proj .seg-t{border-color:var(--ok);color:var(--ink);background:var(--okbg)}
+  .seg-l{opacity:0;transform:translateY(-4px);transition:opacity .45s ease var(--d,0ms),transform .45s ease var(--d,0ms);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink60);text-align:center;padding-top:6px;font-weight:400}
+  .seg-l::before{content:'';display:block;width:1px;height:8px;background:var(--ink30);margin:0 auto 4px}
+  #anatomy.show .seg-l{opacity:1;transform:none}
+  .anat-note{margin-top:16px;font-size:.8rem;color:var(--ink60);border-top:1px dashed var(--line);padding-top:12px}
+  .anat-note b{color:var(--ink);font-weight:600}
+
+  /* ---------- 02 kandidat ---------- */
+  .custom-row{display:flex;gap:10px;margin-bottom:6px}
+  #customName{flex:1;min-width:0;font-family:var(--mono);font-size:.86rem;padding:11px 13px;border:1px solid var(--line);background:var(--card);border-radius:2px}
+  #customName:focus{outline:none;border-color:var(--acc)}
+  .cand{display:flex;align-items:center;gap:14px;padding:15px 2px;border-bottom:1px dashed var(--line);animation:rowIn .45s both}
+  @keyframes rowIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+  .cand-info{min-width:0}
+  .cand-name{font-family:var(--mono);font-size:1rem;font-weight:500;word-break:break-all}
+  .cand-name .tld{color:var(--acc);font-weight:600}
+  .cand-from{font-family:var(--mono);font-size:.64rem;color:var(--ink60);margin-top:3px;display:flex;gap:8px;align-items:center}
+  .tag-main{border:1px solid var(--acc);color:var(--acc);font-size:.53rem;letter-spacing:.1em;padding:1px 5px;border-radius:2px}
+  .cand-right{margin-left:auto;display:flex;align-items:center;gap:14px;flex:none}
+  .stamp{font-family:var(--mono);font-size:.58rem;font-weight:600;letter-spacing:.1em;padding:4px 8px;border:1.5px solid;display:inline-block}
+  .stamp-ok{color:var(--ok);border-color:var(--ok);transform:rotate(-4deg)}
+  .cand.stamp-anim .stamp-ok{animation:stampIn .5s cubic-bezier(.2,.9,.3,1.25) both}
+  @keyframes stampIn{0%{opacity:0;transform:scale(1.8) rotate(-15deg)}55%{opacity:1;transform:scale(.92) rotate(-3deg)}100%{transform:scale(1) rotate(-4deg)}}
+  .stamp-no{color:var(--ink30);border-color:var(--ink30)}
+  .stamp-own{color:var(--acc);border-color:var(--acc)}
+  .cand-price{font-family:var(--mono);font-size:.8rem;text-align:right;min-width:86px}
+  .cand-price small{display:block;font-size:.58rem;color:var(--ink60);font-weight:400}
+  .btn-add{border:1.5px solid var(--ink);background:transparent;padding:7px 12px;font-size:.74rem;font-weight:600;display:inline-flex;align-items:center;gap:6px;border-radius:2px;transition:background .15s,color .15s}
+  .btn-add:hover{background:var(--ink);color:var(--paper)}
+  .btn-add.in{border-color:var(--ok);color:var(--ok);cursor:default}
+  .btn-add.in:hover{background:transparent}
+  .btn-add.own{border-color:var(--acc);color:var(--acc);cursor:pointer}
+  .empty{border:1.5px dashed var(--ink30);padding:34px 24px;text-align:center;color:var(--ink60)}
+  .empty i[data-lucide]{width:22px;height:22px;margin-bottom:10px}
+  .empty p{font-family:var(--mono);font-size:.76rem;max-width:44ch;margin:0 auto;line-height:1.7}
+
+  /* ---------- kasir: kartu saldo + struk ---------- */
+  .kasir-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:34px;align-items:start}
+  .balcard{border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);padding:20px;box-shadow:7px 7px 0 rgba(23,20,14,.12);margin-bottom:22px}
+  .bc-lab{font-family:var(--mono);font-size:.58rem;letter-spacing:.16em;opacity:.72}
+  .bc-num{font-family:var(--serif);font-weight:700;font-size:2.3rem;line-height:1.1;margin:6px 0 2px}
+  .bc-sub{font-family:var(--mono);font-size:.62rem;opacity:.62;margin-bottom:16px}
+  .bc-btn{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+  .bc-btn:hover{background:var(--acc);border-color:var(--acc);color:var(--paper)}
+  .aside-label{font-family:var(--mono);font-size:.66rem;font-weight:600;letter-spacing:.08em;color:var(--acc);margin-bottom:10px}
+  .receipt{background:var(--card);border:1.5px solid var(--ink);padding:20px 20px 6px;box-shadow:7px 7px 0 rgba(23,20,14,.09)}
+  #rcZig{height:11px;background:var(--ink);opacity:.9;margin-top:-1px}
+  .rc-head{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:12px}
+  .rc-head h3{font-family:var(--mono);font-size:.76rem;font-weight:600;letter-spacing:.18em}
+  .rc-no{font-family:var(--mono);font-size:.6rem;color:var(--ink60)}
+  .rc-sec{border-top:1px dashed var(--ink30);padding:12px 0}
+  .rc-lab{font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink60);margin-bottom:9px}
+  .years{display:flex}
+  .years button{flex:1;font-family:var(--mono);font-size:.64rem;padding:8px 4px;border:1px solid var(--ink);background:transparent;margin-left:-1px;transition:background .12s,color .12s}
+  .years button:first-child{margin-left:0}
+  .years button.on{background:var(--ink);color:var(--paper)}
+  .rc-item{display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:.72rem;padding:5px 0;align-items:baseline}
+  .rc-item .n{word-break:break-all}
+  .rc-item .n small{color:var(--ink60);font-size:.6rem}
+  .rc-item .rm{border:none;background:none;color:var(--ink30);display:inline-flex;padding:2px;margin-left:4px}
+  .rc-item .rm:hover{color:var(--acc)}
+  .rc-item .rm i{width:12px;height:12px}
+  .rc-empty{font-family:var(--mono);font-size:.7rem;color:var(--ink30);padding:8px 0;line-height:1.8}
+  .rc-tot{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.76rem;padding:3px 0}
+  .rc-tot.big{font-size:1rem;font-weight:600;padding-top:8px}
+  .rc-tot .neg{color:var(--acc)}
+  .rc-bal{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.7rem;color:var(--ink60);padding:8px 0 4px;border-top:1px dashed var(--ink30);margin-top:8px}
+  .rc-actions{display:flex;flex-direction:column;gap:8px;padding:12px 0 16px}
+  .rc-note{font-family:var(--mono);font-size:.56rem;color:var(--ink30);text-align:center;padding-bottom:14px;letter-spacing:.04em}
+
+  /* ---------- 04 publikasi ---------- */
+  .pub-head{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-bottom:22px}
+  .pub-domain{font-family:var(--mono);font-weight:600;font-size:1.2rem;word-break:break-all}
+  .pub-domain .tld{color:var(--acc)}
+  .pub-src{font-family:var(--mono);font-size:.7rem;color:var(--ink60);display:block;margin-top:4px;word-break:break-all}
+  .badge-status{margin-left:auto;font-family:var(--mono);font-size:.64rem;font-weight:600;letter-spacing:.12em;padding:6px 12px;border:1.5px solid var(--ink30);color:var(--ink30)}
+  .badge-status.live{border-color:var(--ok);color:var(--ok);transform:rotate(-3deg);animation:stampIn .5s cubic-bezier(.2,.9,.3,1.25) both}
+  .pub-extra{font-family:var(--mono);font-size:.66rem;color:var(--ink60);margin-top:-10px;margin-bottom:18px}
+  .steps{list-style:none}
+  .step{display:grid;grid-template-columns:36px minmax(0,1fr);gap:16px;padding:16px 0;position:relative}
+  .step:not(:last-child)::before{content:'';position:absolute;left:17px;top:52px;bottom:-4px;width:1px;background:var(--line)}
+  .step-mark{width:34px;height:34px;border:1.5px solid var(--ink30);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.72rem;font-weight:600;color:var(--ink30);background:var(--card);position:relative;z-index:1}
+  .step.active .step-mark{border-color:var(--acc);color:var(--acc)}
+  .step.done .step-mark{background:var(--ok);border-color:var(--ok);color:#fff}
+  .step h4{font-size:.92rem;font-weight:600}
+  .step.wait h4{color:var(--ink30)}
+  .step.active h4{color:var(--acc)}
+  .step p{font-size:.78rem;color:var(--ink60);margin-top:3px}
+  .step-extra{margin-top:14px}
+  .spin{width:15px;height:15px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:rot .7s linear infinite;display:inline-block}
+  @keyframes rot{to{transform:rotate(360deg)}}
+  .cfg{border:1.5px solid var(--ink);background:var(--card);padding:16px}
+  .cfg-note{font-size:.8rem;margin-bottom:12px}
+  .rec{display:flex;gap:10px;align-items:flex-start;font-family:var(--mono);font-size:.7rem;padding:9px 11px;border:1px solid var(--line);background:var(--paper);margin-bottom:8px;flex-wrap:wrap}
+  .rec-type{border:1px solid var(--ink);padding:1px 6px;font-size:.6rem;font-weight:600;flex:none}
+  .rec-name{font-weight:600;min-width:34px}
+  .rec-val{color:var(--ink60);word-break:break-all;flex:1;min-width:160px}
+  .rec-copy{border:1px solid var(--line);background:var(--card);padding:3px 7px;font-size:.6rem;display:inline-flex;gap:5px;align-items:center}
+  .rec-copy:hover{background:var(--ink);color:var(--paper)}
+  .rec-copy i{width:11px;height:11px}
+  .cfg-instr{font-size:.76rem;color:var(--ink60);margin:12px 0 14px;padding-left:18px}
+  .cfg-instr li{margin:3px 0}
+  .cfg-instr b{color:var(--ink)}
+  .cfg-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .dns-extra{max-width:420px}
+  .dns-bar{height:8px;border:1.5px solid var(--ink);background:var(--card);margin-bottom:8px}
+  .dns-bar i{display:block;height:100%;background:var(--ok);width:0%;transition:width .1s linear}
+  .dns-lab{font-family:var(--mono);font-size:.68rem;color:var(--ink60)}
+  .addr{border:1.5px solid var(--ink);background:var(--card);margin-top:26px;box-shadow:7px 7px 0 rgba(23,20,14,.09)}
+  .addr-new{display:flex;align-items:center;gap:12px;padding:15px 18px;border-bottom:1px dashed var(--line)}
+  .addr-new i[data-lucide].lock{color:var(--ok);width:17px;height:17px}
+  .addr-new .dom{font-family:var(--mono);font-weight:600;font-size:1rem;word-break:break-all;flex:1}
+  .addr-new .proto{color:var(--ink30);font-weight:400}
+  .addr-old{display:flex;align-items:center;gap:10px;padding:12px 18px;color:var(--ink60);font-family:var(--mono);font-size:.72rem;flex-wrap:wrap}
+  .addr-old i{width:14px;height:14px;flex:none}
+  .addr-old s{word-break:break-all}
+  .addr-old .btn{margin-left:auto}
+
+  /* ---------- 05 register & 06 kas ---------- */
+  .reg-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1.3fr) auto auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px dashed var(--line)}
+  .reg-row.hdr{font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink60);border-bottom:1px solid var(--line);padding:8px 0}
+  .reg-dom{font-family:var(--mono);font-weight:600;font-size:.88rem;word-break:break-all}
+  .reg-dom .tld{color:var(--acc)}
+  .reg-src{font-family:var(--mono);font-size:.66rem;color:var(--ink60);word-break:break-all}
+  .reg-date{font-family:var(--mono);font-size:.68rem;text-align:right}
+  .reg-act{display:flex;gap:8px;justify-content:flex-end;align-items:center;grid-column:1/-1;padding-top:2px}
+  .led-row{display:flex;gap:14px;align-items:baseline;padding:12px 0;border-bottom:1px dashed var(--line);font-size:.8rem}
+  .led-t{font-family:var(--mono);font-size:.64rem;color:var(--ink60);width:88px;flex:none}
+  .led-d{flex:1;min-width:0}
+  .led-a{font-family:var(--mono);font-size:.78rem;font-weight:600;flex:none}
+  .led-a.plus{color:var(--ok)}
+  .led-b{font-family:var(--mono);font-size:.62rem;color:var(--ink60);width:92px;text-align:right;flex:none}
+  .muted-empty{font-family:var(--mono);font-size:.72rem;color:var(--ink30);padding:22px 0;line-height:1.8}
+
+  /* ---------- 07 komentar ---------- */
+  .pc-top{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:32px;align-items:center;padding:20px 0;border-bottom:1px solid var(--line)}
+  .pc-avg{display:flex;align-items:center;gap:16px}
+  .pc-avg .num{font-family:var(--serif);font-weight:700;font-size:3rem;line-height:1}
+  .pc-avg .sub{font-family:var(--mono);font-size:.58rem;color:var(--ink60);margin-top:6px;line-height:1.7}
+  .pc-dist{display:grid;gap:5px;width:min(300px,100%)}
+  .pc-dist .row{display:grid;grid-template-columns:34px 1fr 74px;gap:9px;align-items:center;font-family:var(--mono);font-size:.6rem;color:var(--ink60)}
+  .pc-dist .bar{height:8px;border:1px solid var(--ink30);background:var(--card)}
+  .pc-dist .bar i{display:block;height:100%;background:var(--acc);transition:width .6s cubic-bezier(.2,.9,.3,1)}
+  .pc-live{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:.58rem;letter-spacing:.16em;color:var(--ok)}
+  .pc-live::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--ok);animation:pulse 1.2s infinite;flex:none}
+  @keyframes pulse{50%{opacity:.15}}
+  .pc-compose{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:26px;padding:20px 0;border-bottom:1px solid var(--line)}
+  .scale-seg{display:flex}
+  .scale-seg button{flex:0 0 auto;font-family:var(--mono);font-size:.64rem;letter-spacing:.06em;padding:8px 14px;border:1px solid var(--ink);background:transparent;margin-left:-1px;transition:background .12s,color .12s}
+  .scale-seg button:first-child{margin-left:0}
+  .scale-seg button.on{background:var(--ink);color:var(--paper)}
+  #pcName{width:100%;font-family:var(--mono);font-size:.88rem;padding:11px 13px;border:1.5px solid var(--ink);background:var(--card);border-radius:2px}
+  #pcName:focus{outline:none;border-color:var(--acc)}
+  .m-lab{font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink60);margin:16px 0 8px}
+  .m-lab:first-child{margin-top:0}
+  .m-lab b{color:var(--acc);font-size:.8rem;letter-spacing:.04em}
+  .star-pick{display:flex;gap:5px;flex-wrap:wrap;padding:2px 0}
+  .star-pick button{background:none;border:none;padding:2px;color:var(--ink30);transition:transform .12s}
+  .star-pick button:hover{transform:scale(1.18)}
+  .star-pick svg{width:23px;height:23px}
+  .star-pick svg.on{color:var(--acc);fill:var(--acc);stroke:var(--acc)}
+  #pcText{width:100%;font-size:.9rem;padding:12px 13px;border:1.5px solid var(--ink);background:var(--card);border-radius:2px;resize:vertical;min-height:86px}
+  #pcText:focus{outline:none;border-color:var(--acc)}
+  .pc-c-foot{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap}
+  .pc-char{font-family:var(--mono);font-size:.6rem;color:var(--ink30);margin-right:auto}
+  .pc-hint{font-family:var(--mono);font-size:.56rem;color:var(--ink30)}
+  .pc-filter{display:flex;gap:8px;padding:16px 0 4px;flex-wrap:wrap}
+  .pc-filter button{font-family:var(--mono);font-size:.6rem;letter-spacing:.08em;padding:6px 11px;border:1px solid var(--ink30);background:transparent;border-radius:2px;transition:background .12s,color .12s,border-color .12s}
+  .pc-filter button:hover{border-color:var(--ink)}
+  .pc-filter button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .cmt{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px;padding:18px 0;border-bottom:1px dashed var(--line);animation:rowIn .4s both;position:relative}
+  .cmt.hl{animation:hl 1.1s both}
+  @keyframes hl{0%{background:var(--accbg)}100%{background:transparent}}
+  .cmt-av{width:44px;height:44px;border:1.5px solid var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:600;font-size:.76rem;background:var(--card)}
+  .cmt.own .cmt-av{background:var(--ink);color:var(--paper)}
+  .cmt-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .cmt-name{font-weight:600;font-size:.88rem}
+  .cmt-time{font-family:var(--mono);font-size:.58rem;color:var(--ink30)}
+  .badge{font-family:var(--mono);font-size:.5rem;letter-spacing:.1em;border:1px solid;padding:1px 6px;border-radius:2px}
+  .badge-you{border-color:var(--acc);color:var(--acc)}
+  .badge-ver{border-color:var(--ok);color:var(--ok)}
+  .stars{display:inline-flex;gap:2px;align-items:center}
+  .stars svg{width:12px;height:12px;stroke:var(--ink30);fill:none}
+  .stars svg.on{stroke:var(--acc);fill:var(--acc)}
+  .stars-lg svg{width:16px;height:16px}
+  .rat-num{font-family:var(--mono);font-size:.56rem;color:var(--ink60);margin-left:6px}
+  .cmt-text{font-size:.9rem;margin-top:7px;cursor:default}
+  .cmt-ref{font-family:var(--mono);font-size:.56rem;color:var(--ink30);margin-top:5px;letter-spacing:.04em}
+  .cmt-act{display:flex;gap:16px;margin-top:9px}
+  .cmt-act button{border:none;background:none;font-family:var(--mono);font-size:.62rem;color:var(--ink60);display:inline-flex;align-items:center;gap:6px;padding:0;transition:color .12s,transform .12s}
+  .cmt-act button:hover{color:var(--acc)}
+  .cmt-act button:active{transform:scale(1.2)}
+  .cmt-act button.liked{color:var(--acc)}
+  .cmt-act button.liked svg{fill:var(--acc);stroke:var(--acc)}
+  .cmt-act button.pop svg{animation:pop .35s}
+  @keyframes pop{40%{transform:scale(1.45)}}
+  .cmt-act i{width:14px;height:14px}
+  #cmtMore{padding:16px 0;text-align:center}
+  .love-burst{position:fixed;z-index:120;pointer-events:none;color:var(--acc);animation:burst .8s cubic-bezier(.2,.9,.3,1) forwards}
+  .love-burst svg{width:34px;height:34px;fill:var(--acc);stroke:var(--acc)}
+  @keyframes burst{0%{opacity:0;transform:translate(-50%,-50%) scale(.3) rotate(-8deg)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-175%) scale(1.6) rotate(10deg)}}
+
+  /* ---------- dock navigasi aplikasi ---------- */
+  .dock{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:60;display:flex;gap:2px;background:var(--ink);padding:6px;border-radius:16px;box-shadow:0 12px 34px rgba(23,20,14,.4)}
+  .dock button{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:66px;padding:8px 10px 7px;border:none;background:transparent;color:rgba(245,241,232,.72);border-radius:11px;font-family:var(--mono);font-size:.54rem;letter-spacing:.08em;text-transform:uppercase;transition:background .15s,color .15s}
+  .dock button i[data-lucide]{width:19px;height:19px}
+  .dock button.on{background:var(--paper);color:var(--ink)}
+  .dock button.on i{color:var(--acc)}
+  .dock .bdg{position:absolute;top:3px;right:7px;min-width:15px;height:15px;border-radius:8px;background:var(--acc);color:#fff;font-size:.54rem;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px;font-style:normal}
+
+  /* ---------- footer ---------- */
+  footer{border-top:1px solid var(--line);margin-top:56px}
+  .foot-in{padding:24px 20px 30px;font-family:var(--mono);font-size:.66rem;color:var(--ink60);line-height:1.9;max-width:980px;margin:0 auto}
+  .foot-in b{color:var(--ink)}
+
+  /* ---------- toast ---------- */
+  #toasts{position:fixed;bottom:98px;right:16px;z-index:100;display:flex;flex-direction:column;gap:10px;max-width:min(360px,calc(100vw - 32px))}
+  .toast{display:flex;gap:11px;align-items:flex-start;background:var(--ink);color:var(--paper);padding:13px 16px;font-size:.8rem;border-left:3px solid var(--paper);box-shadow:5px 5px 0 rgba(23,20,14,.18);animation:tIn .3s cubic-bezier(.2,.9,.3,1.1)}
+  .toast.ok{border-color:var(--ok)}.toast.ok i{color:#7BC89A}
+  .toast.err{border-color:var(--acc)}.toast.err i{color:#FF9A73}
+  .toast.info{border-color:rgba(245,241,232,.4)}.toast.info i{color:rgba(245,241,232,.7)}
+  .toast i{width:16px;height:16px;margin-top:1px}
+  .toast.out{animation:tOut .25s forwards}
+  @keyframes tIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+  @keyframes tOut{to{opacity:0;transform:translateX(24px)}}
+
+  /* ---------- modal ---------- */
+  #overlay{position:fixed;inset:0;background:rgba(23,20,14,.55);z-index:90;display:flex;align-items:center;justify-content:center;padding:20px;animation:fIn .2s}
+  @keyframes fIn{from{opacity:0}}
+  .modal{background:var(--paper2);border:1.5px solid var(--ink);width:100%;max-width:460px;max-height:88vh;overflow:auto;box-shadow:9px 9px 0 rgba(23,20,14,.2);animation:mIn .25s cubic-bezier(.2,.9,.3,1.1)}
+  @keyframes mIn{from{opacity:0;transform:translateY(16px) scale(.98)}}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line)}
+  .modal-head h3{font-family:var(--mono);font-size:.76rem;font-weight:600;letter-spacing:.16em}
+  .modal-body{padding:20px}
+  .nom-chips{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .nom-chips button{font-family:var(--mono);font-size:.78rem;padding:11px;border:1px solid var(--ink);background:var(--card);border-radius:2px;transition:background .12s,color .12s}
+  .nom-chips button:hover{background:var(--accbg)}
+  .nom-chips button.on{background:var(--ink);color:var(--paper)}
+  #nomCustom{width:100%;margin-top:8px;font-family:var(--mono);font-size:.9rem;padding:11px;border:1.5px solid var(--ink);background:var(--card);border-radius:2px}
+  #nomCustom:focus{outline:none;border-color:var(--acc)}
+  .seg-m{display:flex}
+  .seg-m button{flex:1;font-family:var(--mono);font-size:.66rem;padding:9px 4px;border:1px solid var(--ink);background:transparent;margin-left:-1px}
+  .seg-m button:first-child{margin-left:0}
+  .seg-m button.on{background:var(--ink);color:var(--paper)}
+  .m-panel{border:1px dashed var(--ink30);padding:16px;text-align:center;margin-top:4px}
+  .m-panel canvas{border:1px solid var(--ink);background:#fff;image-rendering:pixelated}
+  .m-amount{font-family:var(--mono);font-weight:600;font-size:1.2rem;margin-top:12px}
+  .m-note{font-family:var(--mono);font-size:.58rem;color:var(--ink30);margin-top:8px;letter-spacing:.04em}
+  .m-va{font-family:var(--mono);font-size:1.1rem;font-weight:600;letter-spacing:.06em;padding:14px;border:1px solid var(--line);background:var(--card);display:flex;justify-content:space-between;align-items:center;gap:10px}
+  #voucherInput{width:100%;font-family:var(--mono);font-size:.92rem;padding:12px;border:1.5px solid var(--ink);background:var(--card);border-radius:2px;text-transform:uppercase}
+  #voucherInput:focus{outline:none;border-color:var(--acc)}
+  .m-err{color:var(--acc);font-size:.74rem;margin-top:8px;display:none}
+  .m-foot{padding:16px 20px 20px}
+  .m-foot .btn{width:100%}
+  .pay-status{font-family:var(--mono);font-size:.7rem;color:var(--ink60);margin-top:12px;display:flex;gap:9px;justify-content:center;align-items:center}
+  .pay-status::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--acc);animation:pulse 1s infinite;flex:none}
+  .tu-ok{display:flex;flex-direction:column;align-items:center;padding:10px 0 4px;text-align:center}
+  .tu-ok .stamp-ok{font-size:.76rem;padding:7px 14px;letter-spacing:.18em;animation:stampIn .5s cubic-bezier(.2,.9,.3,1.25) both}
+  .tu-ok .m-amount{color:var(--ok);font-size:1.6rem}
+  .tu-resume{margin-top:12px;font-family:var(--mono);font-size:.64rem;color:var(--acc);display:flex;gap:8px;align-items:center;justify-content:center}
+
+  @media (max-width:860px){
+    .kasir-grid{grid-template-columns:1fr}
+    .pc-top{grid-template-columns:1fr;gap:18px}
+    .pc-compose{grid-template-columns:1fr}
+    .stats{grid-template-columns:repeat(3,1fr);gap:8px}
+    .stat b{font-size:1.15rem}
+    .reg-row{grid-template-columns:minmax(0,1fr) auto}
+    .reg-row.hdr{display:none}
+    .dock{left:10px;right:10px;transform:none;justify-content:space-between}
+    .dock button{flex:1;min-width:0}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">TITIK<span class="acc">.COM</span><small>aplikasi penerbitan domain &middot; prabayar</small></div>
+    <div class="wallet">
+      <div class="wallet-chip"><span>SALDO</span><strong id="balanceTop">Rp 0</strong></div>
+      <button class="btn btn-ink btn-sm" id="btnTopup"><i data-lucide="plus"></i>Isi saldo</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ LAYAR: BERANDA ============ -->
+  <section class="screen on" data-s="beranda">
+    <div class="hero">
+      <h1>Setiap proyek pantas berakhir <span class="dot">.com</span></h1>
+      <p>Tempel alamat panjang yang belum diberi akhiran — misalnya alamat GitHub Pages Anda. Aplikasi membedahnya, menawarkan nama siap beli, memproses pembayaran prabayar, sampai terbit.</p>
+      <div class="hero-samples" id="samples">
+        <span>Coba alamat:</span>
+        <button class="chip" data-url="https://indonesiamajukaribmu.github.io/Code-Etik-Militer/">indonesiamajukaribmu.github.io/Code-Etik-Militer</button>
+        <button class="chip" data-url="https://budi-santoso.github.io/kamus-hujan/">budi-santoso.github.io/kamus-hujan</button>
+      </div>
+      <div class="stats">
+        <button class="stat" data-go="kasir"><b id="stBal">Rp 0</b><span>saldo prabayar</span></button>
+        <button class="stat" data-go="terbit"><b id="stDom">0</b><span>domain aktif</span></button>
+        <button class="stat" data-go="komentar"><b id="stKom">0</b><span>komentar publik</span></button>
+      </div>
+    </div>
+    <div class="sec-head"><span class="step-no">01</span><h2>Bedah alamat sumber</h2><span>tempel &rarr; analisis</span></div>
+    <div class="block">
+      <div class="block-body">
+        <div class="scan-row">
+          <input id="urlInput" type="text" spellcheck="false" autocomplete="off" placeholder="https://indonesiamajukaribmu.github.io/Code-Etik-Militer/">
+          <button class="btn btn-ink" id="btnAnalyze">Bedah<i data-lucide="arrow-right"></i></button>
+        </div>
+        <div id="scanErr" hidden><i data-lucide="alert-triangle"></i>Alamat tidak valid — tempelkan URL lengkap, misalnya https://nama.github.io/repo/</div>
+        <div id="anatomy" class="anat" hidden></div>
+        <div id="anatomyNote" class="anat-note" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LAYAR: NAMA ============ -->
+  <section class="screen" data-s="nama">
+    <div class="sec-head"><span class="step-no">02</span><h2>Pilih nama &amp; akhiran</h2><span>ketersediaan konsisten per nama</span></div>
+    <div class="block">
+      <div class="block-body">
+        <div class="custom-row">
+          <input id="customName" type="text" spellcheck="false" placeholder="…atau ketik nama impian Anda, mis: code-etik-militer">
+          <button class="btn" id="btnCustom">Periksa</button>
+        </div>
+        <div id="candArea"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LAYAR: KASIR ============ -->
+  <section class="screen" data-s="kasir">
+    <div class="sec-head"><span class="step-no">03</span><h2>Kasir prabayar</h2><span>isi sekali &middot; pakai berkali-kali</span></div>
+    <div class="kasir-grid">
+      <div>
+        <div class="balcard">
+          <span class="bc-lab">SALDO PRABAYAR ANDA</span>
+          <div class="bc-num" id="balBig">Rp 0</div>
+          <div class="bc-sub" id="balSub">top up via QRIS, VA, atau voucher demo</div>
+          <button class="btn bc-btn" id="btnBalTop"><i data-lucide="plus"></i>Isi saldo sekarang</button>
+        </div>
+        <div class="aside-label">STRUK PEMBAYARAN</div>
+        <div id="receipt"></div>
+        <div id="rcZig"></div>
+      </div>
+      <div>
+        <div class="sec-head" style="padding-top:0;border-bottom-width:1px"><span class="step-no">06</span><h2 style="font-size:1.1rem">Buku kas</h2><span>mutasi terbaru di atas</span></div>
+        <div id="ledgerList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LAYAR: TERBIT ============ -->
+  <section class="screen" data-s="terbit">
+    <div class="stack">
+      <div class="block hidden" id="blockPublish">
+        <div class="block-head"><span class="step-no">04</span><h2>Publikasi alamat baru</h2><p>reservasi &rarr; verifikasi &rarr; tayang</p></div>
+        <div class="block-body" id="pubBody"></div>
+      </div>
+      <div>
+        <div class="sec-head"><span class="step-no">05</span><h2>Register domain Anda</h2><span id="regCount"></span></div>
+        <div id="regList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LAYAR: KOMENTAR ============ -->
+  <section class="screen" data-s="komentar">
+    <div class="sec-head"><span class="step-no">07</span><h2>Komentar publik — proses pembayaran</h2><span id="pcCount"></span></div>
+    <div id="pcTop"></div>
+    <div id="pcCompose"></div>
+    <div class="pc-filter" id="pcFilter"></div>
+    <div id="cmtList"></div>
+    <div id="cmtMore"></div>
+  </section>
+</main>
+
+<!-- ============ DOCK NAVIGASI ============ -->
+<nav class="dock" id="dock">
+  <button data-go="beranda" class="on"><i data-lucide="home"></i><span>Beranda</span></button>
+  <button data-go="nama"><i data-lucide="tag"></i><span>Nama</span></button>
+  <button data-go="kasir"><i data-lucide="wallet"></i><span>Kasir</span><b class="bdg" id="dgKasir" hidden></b></button>
+  <button data-go="terbit"><i data-lucide="rocket"></i><span>Terbit</span></button>
+  <button data-go="komentar"><i data-lucide="message-circle"></i><span>Komentar</span><b class="bdg" id="dgKomen" hidden></b></button>
+</nav>
+
+<footer>
+  <div class="foot-in">
+    <b>Catatan jujur:</b> TITIK.COM adalah aplikasi simulasi yang berjalan sepenuhnya di peramban Anda — saldo, pembayaran, registry, dan umpan komentar memakai data demo di localStorage, jadi tidak ada uang nyata yang berpindah tangan. Namun <b>record DNS, alamat IP, file CNAME, dan langkah verifikasinya nyata</b> untuk GitHub Pages: ikuti langkah di tab Terbit, dan alamat .com sungguhan bisa Anda terbitkan lewat registrar resmi.
+  </div>
+</footer>
+
+<div id="toasts"></div>
+
+<script>
+/* ============================================================
+   TITIK.COM — aplikasi penerbitan domain prabayar (simulasi)
+   ============================================================ */
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const waitClick = el => new Promise(r => el.addEventListener('click', () => r(), { once:true }));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const icons = () => window.lucide && lucide.createIcons();
+const pick = a => a[Math.floor(Math.random()*a.length)];
+
+/* ---------- data harga & aturan ---------- */
+const TLD  = { '.com':165000, '.net':155000, '.org':175000, '.dev':195000, '.site':95000, '.id':250000 };
+const DISC = { 1:0, 2:.05, 5:.12 };
+const VOUCHERS = { 'TITIK50':50000, 'TITIK200':200000, 'GERBANG500':500000 };
+const GH_A = '185.199.108.153, 185.199.109.153, 185.199.110.153, 185.199.111.153';
+
+const fmtRp = n => 'Rp ' + new Intl.NumberFormat('id-ID').format(n);
+const fmtTg = t => new Intl.DateTimeFormat('id-ID',{day:'2-digit',month:'short',year:'numeric'}).format(t);
+const hash  = s => { let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0; };
+const slug  = s => s.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+const squash= s => slug(s).replace(/-/g,'');
+const tldOf = d => '.' + d.split('.').pop();
+const addYears = (t,y)=>{ const d=new Date(t); d.setFullYear(d.getFullYear()+y); return d.getTime(); };
+
+/* ---------- state + persistensi ---------- */
+let state = { balance:0, cart:[], years:1, owned:[], taken:[], ledger:[], usedV:[], comments:[] };
+try { Object.assign(state, JSON.parse(localStorage.getItem('tk_state')||'{}')); } catch(e){}
+const save = () => localStorage.setItem('tk_state', JSON.stringify({
+  balance:state.balance, owned:state.owned, taken:state.taken, ledger:state.ledger, usedV:state.usedV, comments:state.comments
+}));
+
+let lastParse = null, baseCands = [], extraCands = [];
+const draftNo = 'TTK-' + String(Date.now()).slice(-6);
+
+/* ---------- navigasi layar aplikasi ---------- */
+let current = 'beranda';
+let unread = 0;
+function go(name){
+  current = name;
+  $$('.screen').forEach(s=>s.classList.toggle('on', s.dataset.s===name));
+  $$('#dock button').forEach(b=>b.classList.toggle('on', b.dataset.go===name));
+  if(name==='komentar'){ unread=0; updateDock(); }
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function updateDock(){
+  const k = $('#dgKasir'), m = $('#dgKomen');
+  k.hidden = !state.cart.length;  k.textContent = state.cart.length;
+  m.hidden = !unread;             m.textContent = unread;
+}
+document.addEventListener('click', e=>{
+  const g = e.target.closest('[data-go]');
+  if(g){ go(g.dataset.go); return; }
+  if(e.target.closest('[data-goto-reg]')){ go('terbit'); setTimeout(()=>$('#regList').scrollIntoView({behavior:'smooth',block:'center'}),350); }
+});
+
+/* ---------- toast ---------- */
+function toast(msg, type='ok'){
+  const ic = { ok:'check-circle-2', err:'alert-triangle', info:'info' }[type];
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = `<i data-lucide="${ic}"></i><span>${msg}</span>`;
+  $('#toasts').appendChild(el); icons();
+  setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>el.remove(), 260); }, 3400);
+}
+
+/* ---------- salin & unduh ---------- */
+async function copyText(t, label='Tersalin ke papan klip'){
+  try { await navigator.clipboard.writeText(t); }
+  catch(e){
+    const ta = document.createElement('textarea'); ta.value=t; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); ta.remove();
+  }
+  toast(label, 'ok');
+}
+function download(name, content){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], {type:'text/plain'}));
+  a.download = name; a.click(); URL.revokeObjectURL(a.href);
+}
+
+/* ---------- 01 · parse & anatomi URL ---------- */
+function parseSource(raw){
+  let s = (raw||'').trim(); if(!s) return null;
+  if(!/^https?:\/\//i.test(s)) s = 'https://' + s;
+  let u; try { u = new URL(s); } catch(e){ return null; }
+  if(!u.hostname.includes('.')) return null;
+  const hp = u.hostname.split('.');
+  return { href:u.href, owner:hp.slice(0,-2).join('.'), service:hp.slice(-2).join('.'), repo:u.pathname.split('/').filter(Boolean)[0]||'' };
+}
+function renderAnatomy(p){
+  const box = $('#anatomy');
+  const segs = [
+    { t:'https://', l:'protokol', c:'' },
+    p.owner ? { t:p.owner+'.', l:'pemilik akun', c:'seg-owner' } : null,
+    { t:p.service, l:'layanan hosting', c:'' },
+    { t:'/'+p.repo, l: p.repo ? 'proyek / repo' : 'jalur', c: p.repo ? 'seg-proj' : '' },
+  ].filter(Boolean);
+  box.hidden = false; box.classList.remove('show');
+  box.innerHTML = segs.map((s,i) =>
+    `<span class="seg ${s.c}"><span class="seg-t">${esc(s.t)}</span><span class="seg-l" style="--d:${i*130+150}ms">${s.l}</span></span>`).join('');
+  const note = $('#anatomyNote');
+  note.hidden = false;
+  note.innerHTML = `Pembacaan mesin — pemilik: <b>${esc(p.owner||'—')}</b> &middot; layanan: <b>${esc(p.service)}</b> &middot; proyek: <b>${esc(p.repo||'—')}</b>. Keduanya menjadi bahan baku nama domain di tab <b>Nama</b>.`;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>box.classList.add('show')));
+}
+function analyze(){
+  const p = parseSource($('#urlInput').value);
+  $('#scanErr').hidden = !!p;
+  if(!p){ $('#anatomy').hidden = true; $('#anatomyNote').hidden = true; baseCands=[]; renderCandidates(); return; }
+  lastParse = p; renderAnatomy(p);
+  baseCands = buildCandidates(p); extraCands = [];
+  renderCandidates(true);
+}
+function buildCandidates(p){
+  const bases = [];
+  if(p.repo){
+    const r = slug(p.repo); if(r) bases.push({ b:r, from:'dari /'+p.repo });
+    const q = squash(p.repo); if(q && q!==r) bases.push({ b:q, from:'varian rapat /'+p.repo });
+  }
+  if(p.owner){ const o = squash(p.owner); if(o) bases.push({ b:o, from:'dari akun @'+p.owner }); }
+  const list = [], seen = new Set();
+  bases.forEach((base,i)=>{
+    const tlds = i===0 ? ['.com','.net','.org','.dev','.site','.id'] : (i===1 ? ['.com','.site','.dev'] : ['.com','.site']);
+    tlds.forEach(t=>{ const d = base.b+t; if(!seen.has(d)){ seen.add(d); list.push({ domain:d, from:base.from }); } });
+  });
+  return list.slice(0,10);
+}
+
+/* ---------- 02 · kandidat ---------- */
+function statusOf(domain){
+  if(state.owned.some(o=>o.domain===domain)) return 'owned';
+  if(state.taken.includes(domain)) return 'taken';
+  return hash(domain) % 100 < 26 ? 'taken' : 'free';
+}
+function renderCandidates(stamp=false){
+  const area = $('#candArea');
+  const all = [...baseCands, ...extraCands];
+  if(!all.length){
+    area.innerHTML = `<div class="empty"><i data-lucide="scan-search"></i><p>Bedah alamat GitHub Pages Anda di tab Beranda — nama-nama siap beli akan muncul di sini.</p></div>`;
+    icons(); return;
+  }
+  area.innerHTML = all.map((c,i)=>{
+    const st = statusOf(c.domain), tld = tldOf(c.domain), name = c.domain.slice(0,-tld.length);
+    let right;
+    if(st==='free'){
+      const inCart = state.cart.includes(c.domain);
+      right = `<span class="stamp stamp-ok">TERSEDIA</span>
+        <div class="cand-price">${fmtRp(TLD[tld])}<small>per tahun</small></div>
+        <button class="btn-add ${inCart?'in':''}" data-add="${c.domain}">
+          ${inCart ? '<i data-lucide="check"></i>Di struk' : '<i data-lucide="plus"></i>Tambah'}</button>`;
+    } else if(st==='owned'){
+      right = `<span class="stamp stamp-own">MILIK ANDA</span>
+        <button class="btn-add own" data-goto-reg>Lihat register<i data-lucide="arrow-right"></i></button>`;
+    } else {
+      right = `<span class="stamp stamp-no">DIAMBIL</span><div class="cand-price">&mdash;<small>coba nama lain</small></div>`;
+    }
+    return `<div class="cand ${stamp&&st==='free'?'stamp-anim':''}" style="animation-delay:${i*55}ms">
+      <div class="cand-info">
+        <div class="cand-name">${esc(name)}<span class="tld">${tld}</span></div>
+        <div class="cand-from">${i===0&&c.from.startsWith('dari /')?'<span class="tag-main">PILIHAN UTAMA</span>':''}${esc(c.from)}</div>
+      </div>
+      <div class="cand-right">${right}</div>
+    </div>`;
+  }).join('');
+  icons();
+}
+ $('#candArea').addEventListener('click', e=>{
+  const add = e.target.closest('[data-add]');
+  if(add) addToCart(add.dataset.add);
+});
+function addToCart(d){
+  const st = statusOf(d);
+  if(st==='taken'){ toast('Sayangnya '+d+' sudah diambil orang.', 'err'); return; }
+  if(st==='owned'){ toast(d+' sudah tercatat atas nama Anda.', 'info'); return; }
+  if(state.cart.includes(d)){ toast(d+' sudah ada di struk.', 'info'); return; }
+  state.cart.push(d);
+  renderCandidates(); renderReceipt(); updateDock();
+  toast(d+' masuk struk — buka tab Kasir untuk membayar.', 'ok');
+}
+ $('#btnCustom').addEventListener('click', ()=>{
+  const base = slug($('#customName').value);
+  if(!base){ toast('Ketik dulu nama yang ingin diperiksa.', 'info'); return; }
+  const seen = new Set(baseCands.map(c=>c.domain));
+  const found = [];
+  ['.com','.net','.site','.dev'].forEach(t=>{
+    const d = base+t;
+    if(!seen.has(d)){ seen.add(d); found.push({ domain:d, from:'pencarian kustom Anda' }); }
+  });
+  extraCands = found; renderCandidates(true);
+  if(!found.some(c=>statusOf(c.domain)==='free')) toast('Semua varian nama itu terambil — coba susunan lain.', 'info');
+});
+ $('#customName').addEventListener('keydown', e=>{ if(e.key==='Enter') $('#btnCustom').click(); });
+
+/* ---------- 03 · struk & harga ---------- */
+function priceFor(domain, years){ return Math.round(TLD[tldOf(domain)]*years*(1-DISC[years])); }
+function renderReceipt(){
+  const items = state.cart.map(d=>
+    `<div class="rc-item"><span class="n">${esc(d)} <small>${state.years} th</small>
+      <button class="rm" data-rm="${d}" title="Hapus"><i data-lucide="x"></i></button></span><span>${fmtRp(priceFor(d,state.years))}</span></div>`).join('');
+  const sub = state.cart.reduce((a,d)=>a+TLD[tldOf(d)]*state.years,0);
+  const tot = state.cart.reduce((a,d)=>a+priceFor(d,state.years),0);
+  const sisa = state.balance - tot;
+  $('#receipt').innerHTML = `
+    <div class="rc-head"><h3>STRUK PRABAYAR</h3><span class="rc-no">${draftNo}</span></div>
+    <div class="rc-sec"><div class="rc-lab">Durasi sewa nama</div>
+      <div class="years">${[1,2,5].map(y=>`<button data-y="${y}" class="${state.years===y?'on':''}">${y} th${DISC[y]?` &minus;${DISC[y]*100}%`:''}</button>`).join('')}</div>
+    </div>
+    <div class="rc-sec"><div class="rc-lab">Item</div>
+      ${items || '<div class="rc-empty">Belum ada nama dipilih.<br>Tambahkan dari tab Nama.</div>'}
+    </div>
+    ${state.cart.length ? `
+    <div class="rc-sec">
+      <div class="rc-tot"><span>Subtotal</span><span>${fmtRp(sub)}</span></div>
+      ${sub!==tot?`<div class="rc-tot"><span>Potongan durasi</span><span>&minus;${fmtRp(sub-tot)}</span></div>`:''}
+      <div class="rc-tot big"><span>TOTAL</span><span>${fmtRp(tot)}</span></div>
+      <div class="rc-bal"><span>Saldo Anda</span><span>${fmtRp(state.balance)}</span></div>
+      <div class="rc-bal" style="border:none;padding-top:0"><span>Sisa setelah bayar</span><span class="${sisa<0?'neg':''}">${fmtRp(sisa)}</span></div>
+    </div>
+    <div class="rc-actions">
+      <button class="btn btn-ink btn-lg" id="btnPay"><i data-lucide="wallet"></i>Bayar dari saldo prabayar</button>
+      <button class="btn btn-lg" id="btnPayTopup"><i data-lucide="plus"></i>Isi saldo dulu</button>
+    </div>` : ''}
+    <div class="rc-note">SIMULASI — saldo demo, tanpa uang nyata</div>`;
+  icons();
+  const bp = $('#btnPay');
+  if(bp) bp.addEventListener('click', payCart);
+  const bt = $('#btnPayTopup');
+  if(bt) bt.addEventListener('click', ()=>{
+    const tot2 = state.cart.reduce((a,d)=>a+priceFor(d,state.years),0);
+    openTopup(Math.max(50000, Math.ceil(Math.max(0,tot2-state.balance)/50000)*50000), tot2>0 ? ()=>payCart() : null);
+  });
+}
+ $('#receipt').addEventListener('click', e=>{
+  const rm = e.target.closest('[data-rm]');
+  if(rm){ state.cart = state.cart.filter(d=>d!==rm.dataset.rm); renderReceipt(); renderCandidates(); updateDock(); return; }
+  const y = e.target.closest('[data-y]');
+  if(y){ state.years = +y.dataset.y; renderReceipt(); }
+});
+
+/* ---------- pembayaran struk ---------- */
+async function payCart(){
+  if(!state.cart.length){ toast('Keranjang masih kosong — pilih nama dulu.', 'info'); return; }
+  const tot = state.cart.reduce((a,d)=>a+priceFor(d,state.years),0);
+  if(state.balance < tot){
+    toast('Saldo kurang '+fmtRp(tot-state.balance)+' — kasir dibuka untuk Anda.', 'info');
+    openTopup(Math.max(50000, Math.ceil((tot-state.balance)/50000)*50000), ()=>payCart());
+    return;
+  }
+  const btn = $('#btnPay'); btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Memproses pembayaran…';
+  await sleep(1200);
+  const inv = 'INV-' + new Date().getFullYear() + '-' + String(hash(draftNo + state.owned.length) % 1000000).padStart(6,'0');
+  state.balance -= tot;
+  state.ledger.unshift({ t:Date.now(), d:`Pembelian ${state.cart.length} domain — ${inv}`, a:-tot, b:state.balance });
+  const items = state.cart.map(d=>{
+    const it = { domain:d, years:state.years, price:priceFor(d,state.years),
+      source: lastParse ? lastParse.href : '', owner: lastParse ? (lastParse.owner||'username') : 'username',
+      reg: Date.now(), exp: addYears(Date.now(), state.years) };
+    state.owned.push(it); state.taken.push(d);
+    return it;
+  });
+  save(); state.cart = [];
+  renderReceipt(); renderWallet(); renderCandidates(); renderRegister(); renderLedger(); updateDock();
+  toast('Pembayaran berhasil — '+inv+'. Publikasi dimulai.', 'ok');
+  pushComment({ name:'Anda', rating:5, scale:5, own:true, verified:true, ref:inv, likes:0,
+    text:`Pembayaran ${items.length} domain dari saldo prabayar berhasil — ${inv}. Publikasi otomatis langsung berjalan.` });
+  scheduleReactions(items[0].domain);
+  renderPublication(items);
+  go('terbit');
+}
+
+/* ---------- 04 · publikasi ---------- */
+function stepHTML(i, title, desc){
+  return `<li class="step wait" data-n="${i}">
+    <div class="step-mark">${i}</div>
+    <div><h4>${title}</h4><p>${desc}</p><div class="step-extra"></div></div></li>`;
+}
+function setStep(li, cls){
+  li.classList.remove('wait','active','done'); li.classList.add(cls);
+  const mark = li.querySelector('.step-mark');
+  if(cls==='done') mark.innerHTML = '<i data-lucide="check"></i>';
+  else if(cls==='active') mark.innerHTML = '<div class="spin"></div>';
+  else mark.textContent = li.dataset.n;
+  icons();
+}
+function renderPublication(items){
+  const it = items[0];
+  $('#blockPublish').classList.remove('hidden');
+  const tld = tldOf(it.domain);
+  $('#pubBody').innerHTML = `
+    <div class="pub-head">
+      <div><span class="pub-domain">${esc(it.domain.slice(0,-tld.length))}<span class="tld">${tld}</span></span>
+      <span class="pub-src">&larr; ${esc(it.source||'alamat sumber')}</span></div>
+      <span class="badge-status" id="pubBadge">MEMPROSES</span>
+    </div>
+    ${items.length>1?`<div class="pub-extra">+ ${items.length-1} domain lain ikut terbit &middot; lihat register di bawah</div>`:''}
+    <ol class="steps" id="pubSteps">
+      ${stepHTML(1,'Reservasi registry','Nama dikunci di buku besar simulasi, status berubah menjadi DIAMBIL.')}
+      ${stepHTML(2,'Verifikasi kepemilikan via DNS','Buktikan bahwa alamat sumber benar milik Anda dengan menyetel record di bawah.')}
+      ${stepHTML(3,'Propagasi DNS','Record disebarkan ke 8 simpul resolver simulasi.')}
+      ${stepHTML(4,'Penerbitan sertifikat TLS','Sertifikat diterbitkan untuk domain baru (Let\u2019s Encrypt, simulasi).')}
+      ${stepHTML(5,'Tayang','Alamat .com siap dijadikan alamat resmi proyek Anda.')}
+    </ol>
+    <div id="addrSlot"></div>`;
+  runSteps(it);
+}
+function injectConfig(li, it){
+  const cnTarget = `${it.owner}.github.io.`;
+  li.querySelector('.step-extra').innerHTML = `
+    <div class="cfg">
+      <p class="cfg-note">Setel dua record berikut di penyedia DNS domain Anda — nilainya <b>nyata</b> untuk GitHub Pages:</p>
+      <div class="rec"><span class="rec-type">A</span><span class="rec-name">@</span><span class="rec-val">${GH_A}</span>
+        <button class="rec-copy" data-copy="@&nbsp;&nbsp;A&nbsp;&nbsp;${GH_A}"><i data-lucide="copy"></i>salin</button></div>
+      <div class="rec"><span class="rec-type">CNAME</span><span class="rec-name">www</span><span class="rec-val">${esc(cnTarget)}</span>
+        <button class="rec-copy" data-copy="www&nbsp;&nbsp;CNAME&nbsp;&nbsp;${cnTarget}"><i data-lucide="copy"></i>salin</button></div>
+      <ol class="cfg-instr">
+        <li>Di GitHub: buka repo Anda &rarr; <b>Settings</b> &rarr; <b>Pages</b>.</li>
+        <li>Di kolom <b>Custom domain</b>, isi <b>${esc(it.domain)}</b> lalu Save.</li>
+        <li>Tambahkan file <b>CNAME</b> (isinya nama domain) ke cabang utama — unduh di samping.</li>
+        <li>Setelah sertifikat terbit, centang <b>Enforce HTTPS</b>.</li>
+      </ol>
+      <div class="cfg-actions">
+        <button class="btn" id="btnDlCname"><i data-lucide="download"></i>Unduh file CNAME</button>
+        <button class="btn btn-ink" id="btnVerified"><i data-lucide="shield-check"></i>Saya sudah menyetelnya — lanjutkan</button>
+      </div>
+    </div>`;
+  icons();
+  $('#btnDlCname').addEventListener('click', ()=> download('CNAME', it.domain + '\n'));
+}
+async function runSteps(it){
+  const li = $$('#pubSteps li');
+  setStep(li[0],'active'); await sleep(950); setStep(li[0],'done');
+  setStep(li[1],'active'); injectConfig(li[1], it);
+  await waitClick($('#btnVerified')); setStep(li[1],'done');
+  setStep(li[2],'active');
+  li[2].querySelector('.step-extra').innerHTML = `<div class="dns-extra"><div class="dns-bar"><i id="dnsFill"></i></div><div class="dns-lab" id="dnsLab">menyapa resolver 0/8…</div></div>`;
+  await new Promise(res=>{
+    const t0 = performance.now(), dur = 2600;
+    (function tick(now){
+      const p = Math.min(1,(now-t0)/dur);
+      $('#dnsFill').style.width = (p*100).toFixed(0)+'%';
+      $('#dnsLab').textContent = `resolver ${Math.min(8,Math.ceil(p*8))}/8 menjawab — ${(p*100).toFixed(0)}%`;
+      p<1 ? requestAnimationFrame(tick) : res();
+    })(t0);
+  });
+  setStep(li[2],'done');
+  setStep(li[3],'active'); await sleep(1300); setStep(li[3],'done');
+  setStep(li[4],'active'); await sleep(600); setStep(li[4],'done');
+  const badge = $('#pubBadge'); badge.textContent = 'AKTIF'; badge.classList.add('live');
+  const tld = tldOf(it.domain);
+  $('#addrSlot').innerHTML = `
+    <div class="addr">
+      <div class="addr-new">
+        <i data-lucide="lock" class="lock"></i>
+        <span class="dom"><span class="proto">https://</span>${esc(it.domain)}</span>
+        <button class="icon-btn" data-copy="${esc(it.domain)}" title="Salin alamat"><i data-lucide="copy"></i></button>
+      </div>
+      <div class="addr-old">
+        <i data-lucide="corner-right-down"></i>
+        <span>menggantikan:</span><s>${esc(it.source||'—')}</s>
+        <button class="btn btn-sm" id="btnOpenSrc"><i data-lucide="external-link"></i>Buka alamat asal</button>
+      </div>
+    </div>`;
+  icons();
+  $('#btnOpenSrc').addEventListener('click', ()=> window.open(it.source || '#', '_blank'));
+  toast(it.domain + ' resmi tayang. Alamat asal Anda tetap berfungsi.', 'ok');
+}
+
+/* ---------- 05 · register ---------- */
+function renderRegister(){
+  const list = [...state.owned].reverse();
+  $('#regCount').textContent = list.length ? list.length + ' nama tercatat' : '';
+  $('#stDom').textContent = state.owned.length;
+  if(!list.length){
+    $('#regList').innerHTML = `<div class="muted-empty">Register masih kosong. Beli nama pertama Anda lewat tab Kasir — catatan kepemilikan, masa berlaku, dan konfigurasi DNS tercatat di sini.</div>`;
+    return;
+  }
+  $('#regList').innerHTML = `
+    <div class="reg-row hdr"><span>Domain</span><span>Sumber asal</span><span>Kedaluwarsa</span><span></span></div>
+    ${list.map(o=>{
+      const tld = tldOf(o.domain);
+      return `<div class="reg-row">
+        <span class="reg-dom">${esc(o.domain.slice(0,-tld.length))}<span class="tld">${tld}</span></span>
+        <span class="reg-src">${esc(o.source||'—')}</span>
+        <span class="reg-date">${fmtTg(o.exp)}</span>
+        <span class="reg-act">
+          <span class="stamp stamp-ok" style="font-size:.5rem">AKTIF</span>
+          <button class="icon-btn" data-dns="${esc(o.domain)}" data-owner="${esc(o.owner)}" title="Salin konfigurasi DNS"><i data-lucide="copy"></i></button>
+          <button class="btn btn-sm" data-renew="${esc(o.domain)}"><i data-lucide="rotate-cw"></i>Perpanjang</button>
+        </span>
+      </div>`;
+    }).join('')}`;
+  icons();
+}
+ $('#regList').addEventListener('click', e=>{
+  const dns = e.target.closest('[data-dns]');
+  if(dns){
+    copyText(`; Konfigurasi DNS — ${dns.dataset.dns}\n@      A      185.199.108.153\n@      A      185.199.109.153\n@      A      185.199.110.153\n@      A      185.199.111.153\nwww    CNAME  ${dns.dataset.owner}.github.io.`, 'Konfigurasi DNS tersalin.');
+    return;
+  }
+  const rn = e.target.closest('[data-renew]');
+  if(rn) openRenew(rn.dataset.renew);
+});
+
+/* ---------- 06 · buku kas ---------- */
+function renderLedger(){
+  if(!state.ledger.length){
+    $('#ledgerList').innerHTML = `<div class="muted-empty">Belum ada mutasi. Isi saldo prabayar untuk mencatat transaksi pertama.</div>`;
+    return;
+  }
+  $('#ledgerList').innerHTML = state.ledger.map(l=>`
+    <div class="led-row">
+      <span class="led-t">${fmtTg(l.t)}</span>
+      <span class="led-d">${esc(l.d)}</span>
+      <span class="led-a ${l.a>0?'plus':''}">${l.a>0?'+':''}${fmtRp(l.a)}</span>
+      <span class="led-b">${fmtRp(l.b)}</span>
+    </div>`).join('');
+}
+function renderWallet(){
+  $('#balanceTop').textContent = fmtRp(state.balance);
+  $('#balBig').textContent = fmtRp(state.balance);
+  $('#stBal').textContent = fmtRp(state.balance);
+}
+
+/* ---------- modal dasar ---------- */
+function openModal(title, bodyHTML, footHTML=''){
+  closeModal();
+  const ov = document.createElement('div');
+  ov.id = 'overlay';
+  ov.innerHTML = `<div class="modal">
+    <div class="modal-head"><h3>${title}</h3><button class="icon-btn" id="mClose"><i data-lucide="x"></i></button></div>
+    <div class="modal-body">${bodyHTML}</div>
+    <div class="m-foot"${footHTML?'':' style="display:none"'}>${footHTML}</div>
+  </div>`;
+  ov.addEventListener('click', e=>{ if(e.target===ov) closeModal(); });
+  ov.querySelector('#mClose').addEventListener('click', closeModal);
+  document.body.appendChild(ov); icons();
+  return ov;
+}
+function closeModal(){ const o=$('#overlay'); if(o) o.remove(); }
+
+/* ============================================================
+   KASIR ISI SALDO — 3 layar: pilih → memproses → saldo masuk
+   ============================================================ */
+let tu = { nom:100000, method:'qris' };
+let afterTopup = null, tuGen = 0;
+function openTopup(preset, resume){
+  tu = { nom: preset || 100000, method:'qris' };
+  afterTopup = resume || null; tuGen++;
+  openModal('KASIR — ISI SALDO PRABAYAR','','');
+  drawTuChoose();
+}
+function drawTuChoose(){
+  const gen = ++tuGen;
+  const scr = $('#overlay .modal-body'), foot = $('#overlay .m-foot');
+  foot.style.display = '';
+  scr.innerHTML = `
+    <div class="m-lab">Pilih nominal isi</div>
+    <div class="nom-chips" id="nomChips">
+      ${[100000,250000,500000,1000000].map(n=>`<button data-nom="${n}" class="${tu.nom===n?'on':''}">${fmtRp(n)}</button>`).join('')}
+    </div>
+    <input id="nomCustom" type="number" min="10000" step="5000" value="${tu.nom}">
+    <div class="m-lab">Metode pembayaran</div>
+    <div class="seg-m" id="mSeg">
+      <button data-m="qris" class="${tu.method==='qris'?'on':''}">QRIS</button>
+      <button data-m="va" class="${tu.method==='va'?'on':''}">VIRTUAL ACCOUNT</button>
+      <button data-m="voucher" class="${tu.method==='voucher'?'on':''}">VOUCHER</button>
+    </div>
+    <div id="tuPanel"></div>`;
+  foot.innerHTML = `<button class="btn btn-ink btn-lg" id="btnTuGo"></button>
+    <div class="m-note" style="text-align:center;margin-top:10px">Simulasi kasir — tidak ada pembayaran nyata yang terjadi.</div>`;
+  renderTuPanel(); renderTuBtn(); icons();
+  $('#nomChips').addEventListener('click', e=>{
+    if(gen!==tuGen) return;
+    const b = e.target.closest('[data-nom]'); if(!b) return;
+    tu.nom = +b.dataset.nom;
+    $('#nomChips').querySelectorAll('button').forEach(x=>x.classList.toggle('on', x===b));
+    $('#nomCustom').value = tu.nom; renderTuPanel(); renderTuBtn();
+  });
+  $('#mSeg').addEventListener('click', e=>{
+    if(gen!==tuGen) return;
+    const b = e.target.closest('[data-m]'); if(!b) return;
+    tu.method = b.dataset.m;
+    $('#mSeg').querySelectorAll('button').forEach(x=>x.classList.toggle('on', x===b));
+    renderTuPanel(); renderTuBtn();
+  });
+  const nc = $('#nomCustom');
+  nc.addEventListener('input', ()=>{
+    if(gen!==tuGen) return;
+    tu.nom = Math.max(10000, Math.round(+nc.value||10000));
+    renderTuBtn();
+    const amt = $('#tuAmt'); if(amt && tu.method!=='voucher') amt.textContent = fmtRp(tu.nom);
+  });
+  nc.addEventListener('change', ()=>{ if(gen===tuGen && tu.method==='qris') renderTuPanel(); });
+  $('#btnTuGo').addEventListener('click', onTuGo);
+}
+function renderTuBtn(){
+  const b = $('#btnTuGo'); if(!b) return;
+  b.textContent = tu.method==='voucher' ? 'Tebus voucher' : 'Bayar ' + fmtRp(tu.nom);
+}
+function renderTuPanel(){
+  const p = $('#tuPanel'); if(!p) return;
+  if(tu.method==='qris'){
+    p.innerHTML = `<div class="m-panel"><canvas id="qrC" width="170" height="170"></canvas>
+      <div class="m-amount" id="tuAmt">${fmtRp(tu.nom)}</div>
+      <div class="m-note">QR simulasi — digambar ulang setiap nominal berubah.</div></div>`;
+    drawQR($('#qrC'), 'qris'+tu.nom);
+  } else if(tu.method==='va'){
+    const h = String(hash('va'+tu.nom)).padStart(10,'0').slice(0,10);
+    p.innerHTML = `<div class="m-lab" style="margin-top:12px">Nomor Virtual Account (simulasi)</div>
+      <div class="m-va"><span>8808 ${h.slice(0,4)} ${h.slice(4,8)} ${h.slice(8,10)}</span>
+      <button class="icon-btn" id="vaCopy"><i data-lucide="copy"></i></button></div>
+      <div class="m-amount" id="tuAmt">${fmtRp(tu.nom)}</div>`;
+    $('#vaCopy').addEventListener('click', ()=>copyText('8808'+h, 'Nomor VA tersalin.'));
+    icons();
+  } else {
+    p.innerHTML = `<div class="m-lab" style="margin-top:12px">Kode voucher</div>
+      <input id="voucherInput" placeholder="TULIS KODE DI SINI" autocomplete="off">
+      <div class="m-err" id="vErr"></div>
+      <div class="m-note">Kode demo: <b>TITIK50</b> (+Rp 50.000), <b>TITIK200</b> (+Rp 200.000), <b>GERBANG500</b> (+Rp 500.000) — masing-masing sekali tebus.</div>`;
+    $('#voucherInput').addEventListener('keydown', e=>{ if(e.key==='Enter') onTuGo(); });
+  }
+}
+async function onTuGo(){
+  if(tu.method==='voucher'){
+    const code = ($('#voucherInput').value||'').trim().toUpperCase();
+    const err = $('#vErr'); err.style.display = 'none';
+    if(!code){ err.textContent='Masukkan kode voucher dulu.'; err.style.display='block'; return; }
+    if(!VOUCHERS[code]){ err.textContent='Kode tidak dikenal — cek lagi penulisannya.'; err.style.display='block'; return; }
+    if(state.usedV.includes(code)){ err.textContent='Kode itu sudah pernah ditebus.'; err.style.display='block'; return; }
+    const b = $('#btnTuGo'); b.disabled = true; b.innerHTML = '<span class="spin"></span>Menebus voucher…';
+    await sleep(800);
+    state.usedV.push(code); tu.nom = VOUCHERS[code];
+    credit(tu.nom, 'Tebus voucher ' + code, 'Voucher ' + code);
+    drawTuSuccess();
+    return;
+  }
+  drawTuProcessing();
+}
+function drawTuProcessing(){
+  const gen = ++tuGen;
+  const scr = $('#overlay .modal-body'), foot = $('#overlay .m-foot');
+  foot.style.display = 'none';
+  const showQR = tu.method==='qris';
+  const vaHtml = showQR ? '' :
+    `<div class="m-va" style="justify-content:center"><span>8808 &bull;&bull;&bull;&bull; ${String(hash('va'+tu.nom)).padStart(10,'0').slice(-4)}</span></div>`;
+  scr.innerHTML = `<div class="m-panel">
+      ${showQR?`<canvas id="qrC" width="150" height="150"></canvas>`:''}
+      ${vaHtml}
+      <div class="m-amount" style="font-size:1rem">${fmtRp(tu.nom)}</div>
+      <div class="pay-status" id="payStatus">menunggu pembayaran…</div>
+      <button class="btn btn-sm" id="btnTuCancel" style="margin-top:16px">Batalkan &amp; kembali</button>
+    </div>`;
+  if(showQR) drawQR($('#qrC'), 'qris'+tu.nom);
+  $('#btnTuCancel').addEventListener('click', ()=>{ if(gen===tuGen){ tuGen++; drawTuChoose(); } });
+  const lines = showQR
+    ? ['menunggu pembayaran…','QR terpindai — menghubungi penerbit…','pembayaran diterima — mengkreditkan saldo…']
+    : ['instruksi terkirim ke bank simulasi…','virtual account dikreditkan…','pembayaran diterima — mengkreditkan saldo…'];
+  (async()=>{
+    const st = $('#payStatus');
+    for(let i=0;i<lines.length;i++){
+      if(gen!==tuGen) return;
+      st.textContent = lines[i];
+      await sleep(i<lines.length-1 ? 1100 : 900);
+      if(gen!==tuGen) return;
+    }
+    credit(tu.nom, 'Isi saldo prabayar — ' + (showQR?'QRIS':'Virtual Account'), showQR?'QRIS':'Virtual Account');
+    drawTuSuccess();
+  })();
+}
+function drawTuSuccess(){
+  tuGen++;
+  const scr = $('#overlay .modal-body'), foot = $('#overlay .m-foot');
+  const resume = afterTopup;
+  scr.innerHTML = `<div class="tu-ok">
+      <span class="stamp stamp-ok">SALDO MASUK</span>
+      <div class="m-amount">+${fmtRp(tu.nom)}</div>
+      <div class="m-note">saldo prabayar sekarang: <b>${fmtRp(state.balance)}</b></div>
+      ${resume?`<div class="tu-resume"><span class="spin"></span>melanjutkan transaksi sebelumnya…</div>`:''}
+    </div>`;
+  foot.style.display = resume ? 'none' : '';
+  foot.innerHTML = `<button class="btn btn-ink btn-lg" id="btnTuDone">Selesai</button>`;
+  icons();
+  let done = false;
+  const finish = ()=>{
+    if(done) return; done = true;
+    afterTopup = null; closeModal();
+    if(resume) resume(); else toast('Saldo siap dipakai — selamat berburu nama.', 'ok');
+  };
+  const bd = $('#btnTuDone');
+  if(bd) bd.addEventListener('click', finish);
+  setTimeout(()=>{ if(!done) finish(); }, resume ? 1700 : 2400);
+}
+function credit(n, desc, method=''){
+  state.balance += n;
+  state.ledger.unshift({ t:Date.now(), d:desc, a:n, b:state.balance });
+  save(); renderWallet(); renderReceipt(); renderLedger();
+  pushComment({ name:'Anda', rating:5, scale:5, own:true, verified:true, ref:method||'SALDO', likes:0,
+    text:`Isi saldo ${fmtRp(n)} berhasil${method?` via ${method}`:''} — saldo langsung aktif dan siap dipakai membayar.` });
+}
+function drawQR(canvas, seed){
+  const n=29, w=canvas.width, cell=w/n, ctx=canvas.getContext('2d');
+  let s = hash(seed)||1;
+  const rnd = ()=>{ s=(Math.imul(s,1664525)+1013904223)>>>0; return s/4294967296; };
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,w);
+  ctx.fillStyle='#17140E';
+  for(let y=1;y<n-1;y++) for(let x=1;x<n-1;x++){
+    const inFinder = (x<8&&y<8)||(x>=n-8&&y<8)||(x<8&&y>=n-8);
+    if(!inFinder && rnd()<.46) ctx.fillRect(x*cell,y*cell,cell+.5,cell+.5);
+  }
+  const finder=(fx,fy)=>{
+    ctx.fillStyle='#17140E'; ctx.fillRect(fx*cell,fy*cell,7*cell,7*cell);
+    ctx.fillStyle='#fff'; ctx.fillRect((fx+1)*cell,(fy+1)*cell,5*cell,5*cell);
+    ctx.fillStyle='#17140E'; ctx.fillRect((fx+2)*cell,(fy+2)*cell,3*cell,3*cell);
+  };
+  finder(1,1); finder(n-8,1); finder(1,n-8);
+}
+
+/* ---------- perpanjang ---------- */
+function openRenew(domain){
+  let years = 1;
+  const price = ()=>priceFor(domain, years);
+  const ov = openModal('PERPANJANG — ' + domain.toUpperCase(), `
+    <div class="m-lab">Tambah masa berlaku</div>
+    <div class="seg-m" id="renSeg">
+      ${[1,2,5].map(y=>`<button data-y="${y}" class="${y===1?'on':''}">+${y} th${DISC[y]?` &minus;${DISC[y]*100}%`:''}</button>`).join('')}
+    </div>
+    <div class="m-panel"><div class="m-amount" id="renTotal">${fmtRp(price())}</div>
+    <div class="m-note" id="renExp"></div></div>`,
+    `<button class="btn btn-ink btn-lg" id="btnRenGo"><i data-lucide="wallet"></i>Bayar dari saldo prabayar</button>`);
+  const item = state.owned.find(o=>o.domain===domain);
+  const upd = ()=>{
+    ov.querySelector('#renTotal').textContent = fmtRp(price());
+    ov.querySelector('#renExp').textContent = 'kedaluwarsa baru: ' + fmtTg(addYears(Math.max(Date.now(), item.exp), years));
+  };
+  upd();
+  ov.querySelectorAll('#renSeg button').forEach(b=>b.addEventListener('click', ()=>{
+    years = +b.dataset.y;
+    ov.querySelectorAll('#renSeg button').forEach(x=>x.classList.toggle('on', x===b));
+    upd();
+  }));
+  ov.querySelector('#btnRenGo').addEventListener('click', async ()=>{
+    const b = ov.querySelector('#btnRenGo'); b.disabled=true; b.innerHTML='<span class="spin"></span>Memproses…';
+    await sleep(400);
+    const ok = await performRenew(domain, years);
+    if(ok) closeModal();
+  });
+}
+async function performRenew(domain, years){
+  const item = state.owned.find(o=>o.domain===domain);
+  if(!item) return false;
+  const total = priceFor(domain, years);
+  if(state.balance < total){
+    closeModal();
+    toast('Saldo kurang '+fmtRp(total-state.balance)+' — kasir dibuka.', 'info');
+    openTopup(Math.max(50000, Math.ceil((total-state.balance)/50000)*50000), ()=>performRenew(domain, years));
+    return false;
+  }
+  state.balance -= total;
+  item.exp = addYears(Math.max(Date.now(), item.exp), years);
+  state.ledger.unshift({ t:Date.now(), d:`Perpanjangan ${domain} (+${years} th)`, a:-total, b:state.balance });
+  save(); renderWallet(); renderReceipt(); renderRegister(); renderLedger();
+  toast(domain + ' diperpanjang ' + years + ' tahun.', 'ok');
+  pushComment({ name:'Anda', rating:5, scale:5, own:true, verified:true, ref:'RENEWAL', likes:0,
+    text:`Perpanjangan ${domain} (+${years} tahun) dibayar dari saldo prabayar — prosesnya instan.` });
+  return true;
+}
+
+/* ============================================================
+   07 · KOMENTAR PUBLIK — bintang fleksibel, love, bebas berkomentar
+   ============================================================ */
+const PC_NAMES = ['Rangga Pratama','Sari Wulandari','Dimas Aryo','Nadia Puspita','Bagas Hidayat',
+  'Maya Kusuma','Fajar Nugroho','Intan Permata','Rizky Ananda','Tari Halimah','Yoga Saputra','Lina Marlina'];
+const PC_TEXTS = [
+  'Isi saldo lewat QRIS — kreditnya masuk dalam hitungan detik. Struk prabayarnya juga rapi banget.',
+  'Baru kali ini beli domain tanpa kartu kredit. Sistem saldo prabayar bikin tenang, tidak khawatir salah debet.',
+  'Nomor VA langsung keluar, tinggal salin ke m-banking. Lancar, tidak ada hambatan.',
+  'Potongan durasi 5 tahun kelihatan transparan di struk. Tidak ada biaya siluman sama sekali.',
+  'Pembayaran lancar. Verifikasi DNS-nya memang butuh ketelitian, tapi itu bagian teknis, bukan bayarnya.',
+  'Status pembayaran langkah demi langkah kelihatan — dari menunggu sampai saldo masuk, semuanya jelas.',
+  'Tebus voucher gampang, saldo nambah seketika dan langsung bisa dipakai bayar.',
+  'Kasirnya dibuka otomatis pas saldo kurang, nominal kekurangannya langsung dihitungkan. Pikirannya adem.',
+  'Perpanjangan domain dari saldo cuma beberapa detik. Prabayar memang enak.',
+  'Bisa berkomentar berkali-kali di sini — setiap transaksi saya review lagi. Suka.',
+];
+const PC_REACT = [
+  'Selamat atas peluncuran {d} — proses bayarnya kelihatan mulus dari luar.',
+  '{d}? Pilihan nama yang bagus. Selamat!',
+  'Baru lihat {d} masuk deretan tayang. Ternyata pembayarannya sebentar saja.',
+  'Dari alamat panjang jadi {d} — rapi sekali. Selamat ya.',
+];
+
+let pcFilter = 'all', pcShowAll = false;
+let pcScale = 5, pcRating = 5, lastNew = null;
+const liked = new Set();
+
+const norm5 = c => (c.rating / (c.scale||5)) * 5;
+const ago = t => {
+  const s = (Date.now()-t)/1000;
+  if(s < 45) return 'baru saja';
+  if(s < 3600) return Math.floor(s/60)+' menit lalu';
+  if(s < 86400) return Math.floor(s/3600)+' jam lalu';
+  if(s < 172800) return 'kemarin';
+  return fmtTg(t);
+};
+const initials = n => (n.trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('') || '?').toUpperCase();
+const starRow = (v, sc, lg='') =>
+  `<span class="stars ${lg}">${Array.from({length:sc},(_,i)=>`<i data-lucide="star" class="${i<v?'on':''}"></i>`).join('')}</span><span class="rat-num">${v}/${sc}</span>`;
+
+function seedComments(){
+  if(state.comments && state.comments.length) return;
+  const seed = [
+    ['Sari Wulandari',5,5,'Isi saldo lewat QRIS — kreditnya masuk dalam hitungan detik. Struk prabayarnya juga rapi banget.',12],
+    ['Dimas Aryo',10,10,'Baru kali ini beli domain tanpa kartu kredit. Sistem saldo prabayar bikin tenang, tidak khawatir salah debet.',9],
+    ['Nadia Puspita',9,10,'Nomor VA langsung keluar, tinggal salin ke m-banking. Lancar, tidak ada hambatan.',5],
+    ['Bagas Hidayat',5,5,'Potongan durasi 5 tahun kelihatan transparan di struk. Tidak ada biaya siluman sama sekali.',8],
+    ['Intan Permata',4,5,'Pembayaran lancar. Verifikasi DNS-nya memang butuh ketelitian, tapi itu bagian teknis, bukan bayarnya.',3],
+    ['Yoga Saputra',5,5,'Tebus voucher TITIK50 sukses — saldo nambah seketika, langsung dipakai bayar .com pertama.',7],
+  ];
+  state.comments = seed.map((c,i)=>({
+    id:'seed'+i, name:c[0], rating:c[1], scale:c[2], text:c[3], likes:c[4],
+    t: Date.now() - (i*37+9)*60000, own:false, verified:false
+  }));
+  save();
+}
+function pushComment(c, markNew=false){
+  c.id = c.id || ('c'+Date.now()+Math.floor(Math.random()*999));
+  c.t  = c.t || Date.now();
+  if(!c.scale) c.scale = 5;
+  if(markNew) lastNew = c.id;
+  state.comments.unshift(c);
+  if(state.comments.length > 60) state.comments.length = 60;
+  save();
+  $('#stKom').textContent = state.comments.length;
+  if(!c.own && current!=='komentar'){ unread++; updateDock(); }
+  renderPcAll();
+  if(markNew) setTimeout(()=>{ lastNew = null; }, 1500);
+  return c.id;
+}
+function scheduleReactions(domain){
+  const fire = delay => setTimeout(()=>{
+    const name = pick(PC_NAMES);
+    pushComment({ name, rating:5, scale:5, own:false, verified:false, likes:Math.floor(Math.random()*5),
+      text: pick(PC_REACT).replace('{d}', domain) });
+    toast('Komentar publik baru dari '+name+'.', 'info');
+  }, delay);
+  fire(3500 + Math.random()*4000);
+  if(Math.random() < .45) fire(11000 + Math.random()*7000);
+}
+function startAutoVisitors(){
+  setTimeout(function loop(){
+    if(document.visibilityState === 'visible'){
+      const ten = Math.random() < .3;
+      pushComment({ name:pick(PC_NAMES), own:false, verified:false,
+        rating: ten ? pick([10,10,9,9,8,7]) : pick([5,5,5,5,4,4,3]),
+        scale: ten ? 10 : 5,
+        likes:Math.floor(Math.random()*9), text:pick(PC_TEXTS) });
+    }
+    setTimeout(loop, 26000 + Math.random()*28000);
+  }, 14000);
+}
+
+function renderPcTop(){
+  const cs = state.comments;
+  const avg = cs.length ? cs.reduce((a,c)=>a+norm5(c),0)/cs.length : 0;
+  const avgStr = cs.length ? avg.toFixed(1).replace('.',',') : '—';
+  const dist = [5,4,3,2,1].map(r=>{
+    const n = cs.filter(c=>Math.round(norm5(c))===r).length;
+    return { r, n, pct: cs.length ? Math.round(n/cs.length*100) : 0 };
+  });
+  $('#pcTop').innerHTML = `
+    <div class="pc-avg">
+      <span class="num">${avgStr}</span>
+      <div>
+        ${cs.length ? starRow(Math.round(avg),5,'stars-lg') : ''}
+        <div class="sub">rata-rata penilaian proses pembayaran<br>dari ${cs.length} komentar publik</div>
+      </div>
+    </div>
+    <div class="pc-dist">
+      ${dist.map(d=>`<div class="row"><span>${d.r}&nbsp;bintang</span><span class="bar"><i style="width:${d.pct}%"></i></span><span>${d.n} komentar</span></div>`).join('')}
+    </div>
+    <div class="pc-live">SIARAN LANGSUNG</div>`;
+}
+function renderPcFilter(){
+  const n  = state.comments.length;
+  const nv = state.comments.filter(c=>c.verified).length;
+  const nb = state.comments.filter(c=>norm5(c)>=4.5).length;
+  const btn = (k,l,c)=>`<button data-pcf="${k}" class="${pcFilter===k?'on':''}">${l} (${c})</button>`;
+  $('#pcFilter').innerHTML = btn('all','SEMUA',n) + btn('verified','TERVERIFIKASI',nv) + btn('best','TERBAIK',nb);
+  $('#pcCount').textContent = n + ' komentar publik';
+}
+function renderComments(){
+  const list = $('#cmtList');
+  let arr = state.comments;
+  if(pcFilter==='verified') arr = arr.filter(c=>c.verified);
+  if(pcFilter==='best')     arr = arr.filter(c=>norm5(c)>=4.5);
+  const shown = pcShowAll ? arr : arr.slice(0,8);
+  list.innerHTML = shown.length ? shown.map(c=>`
+    <div class="cmt ${c.own?'own':''} ${c.id===lastNew?'hl':''}">
+      <div class="cmt-av">${esc(initials(c.name))}</div>
+      <div>
+        <div class="cmt-top">
+          <span class="cmt-name">${esc(c.name)}</span>
+          ${c.own?'<span class="badge badge-you">ANDA</span>':''}
+          ${c.verified?'<span class="badge badge-ver">TERVERIFIKASI</span>':''}
+          <span class="cmt-time">${ago(c.t)}</span>
+          <span style="margin-left:auto">${starRow(c.rating, c.scale||5)}</span>
+        </div>
+        <div class="cmt-text">${esc(c.text)}</div>
+        ${c.ref?`<div class="cmt-ref">REF: ${esc(c.ref)}</div>`:''}
+        <div class="cmt-act">
+          <button data-like="${c.id}" class="${liked.has(c.id)?'liked':''}" title="Suka (love)"><i data-lucide="heart"></i><span>${c.likes||0}</span></button>
+          ${c.own?`<button data-del="${c.id}"><i data-lucide="trash-2"></i>hapus</button>`:''}
+        </div>
+      </div>
+    </div>`).join('')
+  : `<div class="muted-empty">Belum ada komentar pada saringan ini.</div>`;
+  const more = $('#cmtMore');
+  more.innerHTML = arr.length>8
+    ? `<button class="btn btn-sm" id="btnMore">${pcShowAll?'Tampilkan lebih sedikit':'Tampilkan semua ('+arr.length+')'}</button>` : '';
+  const bm = $('#btnMore');
+  if(bm) bm.addEventListener('click', ()=>{ pcShowAll=!pcShowAll; renderComments(); });
+  icons();
+}
+function renderPcAll(){ renderPcTop(); renderPcFilter(); renderComments(); }
+
+/* --- komposer: skala bintang 5/10, bisa berkomentar berulang --- */
+function renderPcCompose(){
+  $('#pcCompose').innerHTML = `
+    <div>
+      <div class="m-lab">Nama Anda</div>
+      <input id="pcName" maxlength="40" placeholder="mis: Rangga P.">
+      <div class="m-lab">Skala penilaian</div>
+      <div class="scale-seg" id="pcScale">
+        <button data-sc="5" class="${pcScale===5?'on':''}">5 BINTANG</button>
+        <button data-sc="10" class="${pcScale===10?'on':''}">10 BINTANG</button>
+      </div>
+      <div class="m-lab">Nilai Anda &mdash; <b id="pcVal">${pcRating} / ${pcScale}</b></div>
+      <div class="star-pick" id="pcStars"></div>
+    </div>
+    <div>
+      <div class="m-lab">Komentar Anda tentang proses pembayaran</div>
+      <textarea id="pcText" maxlength="280" placeholder="Bagaimana pengalaman isi saldo & pembayaran Anda? Boleh berkomentar berkali-kali."></textarea>
+      <div class="pc-c-foot">
+        <span class="pc-char" id="pcChar">0/280</span>
+        <span class="pc-hint">Ctrl+Enter = kirim cepat</span>
+        <button class="btn btn-ink" id="pcSubmit"><i data-lucide="send"></i>Terbitkan komentar</button>
+      </div>
+    </div>`;
+  icons();
+  paintStars();
+
+  $('#pcScale').addEventListener('click', e=>{
+    const b = e.target.closest('[data-sc]'); if(!b) return;
+    const ns = +b.dataset.sc;
+    pcRating = Math.min(ns, Math.max(1, Math.round(norm5({rating:pcRating, scale:pcScale})/5*ns)));
+    pcScale = ns;
+    $$('#pcScale button').forEach(x=>x.classList.toggle('on', x===b));
+    $('#pcVal').textContent = `${pcRating} / ${pcScale}`;
+    paintStars();
+  });
+
+  const stars = $('#pcStars');
+  stars.addEventListener('click', e=>{
+    const b = e.target.closest('button'); if(!b) return;
+    pcRating = +b.dataset.v;
+    $('#pcVal').textContent = `${pcRating} / ${pcScale}`;
+    paintStars();
+  });
+  stars.addEventListener('mouseover', e=>{
+    const b = e.target.closest('button'); if(!b) return;
+    const v = +b.dataset.v;
+    stars.querySelectorAll('svg').forEach((s,i)=>s.classList.toggle('on', i < v));
+  });
+  stars.addEventListener('mouseleave', paintStars);
+
+  $('#pcText').addEventListener('input', e=>{ $('#pcChar').textContent = e.target.value.length + '/280'; });
+  $('#pcText').addEventListener('keydown', e=>{
+    if(e.key==='Enter' && (e.ctrlKey||e.metaKey)){ e.preventDefault(); submitPc(); }
+  });
+  $('#pcSubmit').addEventListener('click', submitPc);
+}
+function paintStars(){
+  const stars = $('#pcStars'); if(!stars) return;
+  stars.innerHTML = Array.from({length:pcScale},(_,i)=>
+    `<button data-v="${i+1}" title="${i+1} bintang"><i data-lucide="star" class="${i<pcRating?'on':''}"></i></button>`).join('');
+  icons();
+}
+function submitPc(){
+  const name = ($('#pcName').value||'').trim() || 'Pengunjung';
+  const text = ($('#pcText').value||'').trim();
+  if(text.length < 3){ toast('Tulis komentar Anda dulu (minimal 3 karakter).', 'err'); return; }
+  try { localStorage.setItem('tk_pcname', name); } catch(e){}
+  pushComment({ name, rating:pcRating, scale:pcScale, text, own:true, verified:false, likes:0 }, true);
+  $('#pcText').value = ''; $('#pcChar').textContent = '0/280';
+  toast('Komentar Anda terbit — silakan berkomentar lagi kapan saja.', 'ok');
+}
+
+/* --- interaksi daftar: love, hapus, saringan, mekar hati --- */
+ $('#cmtList').addEventListener('click', e=>{
+  const lk = e.target.closest('[data-like]');
+  if(lk){
+    const c = state.comments.find(x=>x.id===lk.dataset.like); if(!c) return;
+    if(liked.has(c.id)){ liked.delete(c.id); c.likes = Math.max(0,(c.likes||0)-1); }
+    else { liked.add(c.id); c.likes = (c.likes||0)+1; lk.classList.add('pop'); setTimeout(()=>lk.classList.remove('pop'),400); }
+    lk.classList.toggle('liked', liked.has(c.id));
+    lk.querySelector('span').textContent = c.likes||0;
+    save(); return;
+  }
+  const dl = e.target.closest('[data-del]');
+  if(dl){
+    state.comments = state.comments.filter(x=>x.id!==dl.dataset.del);
+    save(); renderPcAll();
+    $('#stKom').textContent = state.comments.length;
+    toast('Komentar Anda dihapus dari dinding publik.', 'info');
+  }
+});
+/* klik dua kali di komentar = love mekar */
+ $('#cmtList').addEventListener('dblclick', e=>{
+  const cmt = e.target.closest('.cmt'); if(!cmt) return;
+  const btn = cmt.querySelector('[data-like]');
+  if(btn && !liked.has(btn.dataset.like)) btn.click();
+  const b = document.createElement('div');
+  b.className = 'love-burst';
+  b.style.left = e.clientX+'px'; b.style.top = e.clientY+'px';
+  b.innerHTML = '<i data-lucide="heart"></i>';
+  document.body.appendChild(b); icons();
+  setTimeout(()=>b.remove(), 850);
+});
+ $('#pcFilter').addEventListener('click', e=>{
+  const b = e.target.closest('[data-pcf]'); if(!b) return;
+  pcFilter = b.dataset.pcf; pcShowAll = false;
+  renderPcFilter(); renderComments();
+});
+setInterval(()=>{ if(state.comments.length && current==='komentar') renderComments(); }, 60000);
+
+/* ---------- delegasi salin ---------- */
+document.addEventListener('click', e=>{
+  const c = e.target.closest('[data-copy]');
+  if(c) copyText(c.dataset.copy.replace(/&nbsp;/g,' '));
+});
+
+/* ---------- contoh & enter ---------- */
+ $('#samples').addEventListener('click', e=>{
+  const ch = e.target.closest('[data-url]');
+  if(!ch) return;
+  $('#urlInput').value = ch.dataset.url;
+  analyze();
+});
+ $('#btnAnalyze').addEventListener('click', analyze);
+ $('#urlInput').addEventListener('keydown', e=>{ if(e.key==='Enter') analyze(); });
+ $('#btnTopup').addEventListener('click', ()=>openTopup());
+ $('#btnBalTop').addEventListener('click', ()=>openTopup());
+
+/* ---------- zigzag struk ---------- */
+(function(){
+  const n = 26, pts = ['0% 0%'];
+  for(let i=0;i<=n;i++) pts.push(`${(i/n*100).toFixed(2)}% ${i%2?'100%':'0%'}`);
+  pts.push('100% 0%');
+  $('#rcZig').style.clipPath = `polygon(${pts.join(',')})`;
+})();
+
+/* ---------- init ---------- */
+let savedName = ''; try { savedName = localStorage.getItem('tk_pcname')||''; } catch(e){}
+renderWallet(); renderReceipt(); renderCandidates(); renderRegister(); renderLedger(); updateDock();
+seedComments(); renderPcCompose();
+if(savedName) $('#pcName').value = savedName;
+renderPcAll(); startAutoVisitors();
+icons();
+</script>
+</body>
+</html>
